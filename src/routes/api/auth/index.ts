@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from 'fastify'
 import UserService from '../../../services/UserService.js'
 import { loginSchema, registerSchema } from './schema.js'
+import { AutoBody } from './types.js'
 
 const authRoute: FastifyPluginAsync = async (fastify) => {
   const userService = UserService.getInstance()
@@ -8,13 +9,14 @@ const authRoute: FastifyPluginAsync = async (fastify) => {
     return userService.login()
   })
 
-  fastify.post(
+  fastify.post<{Body:AutoBody}>(
     '/register',
     {
       schema: registerSchema,
     },
-    async () => {
-      return userService.register()
+    async (fastify) => {
+      const user =await userService.register(fastify.body);
+      return {user}
     },
   )
 }
