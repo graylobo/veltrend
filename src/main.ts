@@ -2,6 +2,7 @@ import Fastify from 'fastify'
 import routes from './routes/index.js'
 import fastifySwagger from '@fastify/swagger'
 import { swaggerConfig } from './config/swagger.js'
+import fastifyCookie from "@fastify/cookie"
 import AppError from './lib/AppError.js'
 import { authPlugin } from './plugins/authPlugin.js'
 
@@ -10,6 +11,8 @@ const server = Fastify({
 })
 
 await server.register(fastifySwagger, swaggerConfig)
+
+server.register(fastifyCookie)
 
 server.setErrorHandler(async (error, request, reply) => {
   reply.statusCode = error.statusCode ?? 500
