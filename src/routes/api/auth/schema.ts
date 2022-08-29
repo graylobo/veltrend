@@ -28,11 +28,24 @@ export const registerSchema: FastifySchema = {
   body: authBodySchema,
   response: {
     200: authResultSchema,
-    409: createAppErrorSchema({
-      name: 'userExistsError',
-      message: 'user already exist',
-      statusCode: 409,
-    }),
+    409: createAppErrorSchema(
+      {
+        name: 'userExistsError',
+        message: 'user already exist',
+        statusCode: 409,
+        payload: {
+          isExpiredToken: true,
+        },
+      },
+      {
+        type: 'object',
+        properties: {
+          isExpiredToken: {
+            type: 'boolean',
+          },
+        },
+      },
+    ),
   },
 }
 
@@ -40,10 +53,23 @@ export const loginSchema: FastifySchema = {
   body: authBodySchema,
   response: {
     200: authResultSchema,
-    401: createAppErrorSchema({
-      name: 'AuthenticationError',
-      message: 'Invalid username or password',
-      statusCode: 401,
-    }),
+    401: createAppErrorSchema(
+      {
+        name: 'AuthenticationError',
+        message: 'Invalid username or password',
+        statusCode: 401,
+        payload: {
+          isExpiredToken: true,
+        },
+      },
+      {
+        type: 'object',
+        properties: {
+          isExpiredToken: {
+            type: 'boolean',
+          },
+        },
+      },
+    ),
   },
 }
