@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // provider = "postgresql"
+  // url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  Item  Item[]
+  Token Token[]
+  comments          Comment[] @relation("user")
+  mentionedComments Comment[] @relation("mentionUser")
+}
+
+model Token {
+  id              Int      @id @default(autoincrement())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          Int
+  rotationCounter Int      @default(1)
+  createdAt       DateTime @default(now())
+  blocked         Boolean  @default(false)
+}
+
+model Item {
+  id        Int       @id @default(autoincrement())
+  title     String
+  body      String
+  author    String    @default("")
+  link      String?
+  thumbnail String?
+  tags      Tag[]
+  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user        User @relation(fields: [userId], references: [id])
+  userId      Int
+  publisherId Int
+  itemsTags ItemsTags[]
+  itemStats ItemStats?
+  comments  Comment[]
+  itemLikes ItemLike[]
+  @@index([createdAt(sort: Desc)])
+}
+
+model Publisher {
+  id      Int     @id @default(autoincrement())
+  name    String
+  favicon String?
+  domain  String  @unique
+  items Item[]
+}
+
+model Tag {
+  id        Int         @id @default(autoincrement())
+  name      String      @unique
+  Item      Item?       @relation(fields: [itemId], references: [id])
+  itemId    Int?
+  itemsTags ItemsTags[]
+}
+
+model ItemsTags {
+  item   Item @relation(fields: [itemId], references: [id])
+  itemId Int
+  tag    Tag  @relation(fields: [tagId], references: [id])
+  tagId  Int
+  @@id([itemId, tagId])
+  @@index(tagId)
+  @@index(itemId)
+}
+
+model TagRelation {
+  id          Int @id @default(autoincrement())
+  tagId       Int
+  originTagId Int
+  @@index(tagId)
+  @@index(originTagId)
+}
+
+model ItemLike {
+  id     Int @id @default(autoincrement())
+  itemId Int
+  userId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  item Item @relation(fields: [itemId], references: [id])
+  @@unique([itemId, userId])
+  @@index(itemId)
+}
+
+model ItemStats {
+  id            Int  @id @default(autoincrement())
+  itemId        Int  @unique
+  likes         Int  @default(0)
+  clicks        Int  @default(0)
+  score         Int  @default(0)
+  commentsCount Int  @default(0)
+  item          Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Comment {
+  id   Int    @id @default(autoincrement())
+  text String
+  item        Item  @relation(fields: [itemId], references: [id])
+  user        User  @relation("user", fields: [userId], references: [id])
+  mentionUser User? @relation("mentionUser", fields: [mentionUserId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  deletedAt DateTime?
+  likes            Int @default(0)
+  subcommentsCount Int @default(0)
+  mentionUserId   Int?
+  parentCommentId Int?
+  itemId          Int
+  commentLikes    CommentLike[]
+  userId          Int
+  @@index(deletedAt)
+  @@index(createdAt)
+  @@index(parentCommentId)
+}
+
+model CommentLike {
+  id        Int @id @default(autoincrement())
+  commentId Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  Comment Comment @relation(fields: [commentId], references: [id])
+  @@unique([commentId, userId])
+  @@index(commentId)
+}
