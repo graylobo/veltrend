@@ -2,25 +2,51 @@ import React from "react";
 import styled from "styled-components";
 import { colors } from "~/lib/colors";
 import { Logo } from "./vectors";
-
-export default function Header() {
+interface Props {
+  title?: React.ReactNode;
+  headerLeft?: React.ReactNode;
+  headerRight?: React.ReactNode;
+}
+export default function Header({ title = <Logo />, headerLeft ,headerRight}: Props) {
   return (
     <Block>
-      <Logo />
+      {headerLeft && <HeaderSide position="left">{headerLeft}</HeaderSide>}
+
+      <Title>{title}</Title>
+      {headerRight && <HeaderSide position="right">{headerRight}</HeaderSide>}
+
+      
     </Block>
   );
 }
 
 const Block = styled.header`
+  position: relative;
   height: 56px;
   border-bottom: 1px solid ${colors.gray0};
   padding-left: 16px;
   padding-right: 16px;
   display: flex;
-  align-items:center;
-  justify-content:center;
-  svg{
-    width:84px;
-    height:17px;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Title = styled.div`
+  color: ${colors.gray5};
+  font-size: 18px;
+  font-weight: bold;
+  svg {
+    color: ${colors.gray5};
+    width: 84px;
+    height: 17px;
   }
+`;
+
+const HeaderSide = styled.div<{ position: "left" | "right" }>`
+  position: absolute;
+  ${(p) => p.position}: 16px;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
 `;
