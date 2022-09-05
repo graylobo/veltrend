@@ -7,6 +7,7 @@ import {
     Scripts,
     ScrollRestoration,
 } from "@remix-run/react";
+import GlobalStyle from "./components/GlobalStyle";
 
 export const meta: MetaFunction = () => ({
     charset: "utf-8",
@@ -23,6 +24,7 @@ export default function App() {
                 {typeof document === "undefined" ? "__STYLES__" : null}
             </head>
             <body>
+                <GlobalStyle/>
                 <Outlet />
                 <ScrollRestoration />
                 <Scripts />
