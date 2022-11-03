@@ -15,7 +15,6 @@ export default function HeaderBackButton({ onClick }: Props) {
 
 const IconButton = styled.div`
   border: none;
-  background: red;
   display: flex;
   align-items: center;
   justify-content: center;
